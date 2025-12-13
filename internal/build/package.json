@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@element-plus/build-constants": "workspace:*",
-    "@microsoft/api-extractor": "^7.52.5",
     "@pnpm/find-workspace-packages": "^4.0.16",
     "@pnpm/logger": "^4.0.0",
     "@rollup/plugin-commonjs": "^22.0.1",
@@ -28,7 +27,7 @@
     "components-helper": "^2.1.4",
     "consola": "^2.15.3",
     "esbuild": "^0.14.47",
-    "fast-glob": "^3.2.11",
+    "tinyglobby": "^0.2.15",
     "fs-extra": "^10.1.0",
     "gulp": "^4.0.2",
     "lodash": "^4.17.21",

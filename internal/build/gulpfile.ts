@@ -8,13 +8,19 @@ import {
   epPackage,
   projRoot,
 } from '@element-plus/build-utils'
-import { buildConfig, run, runTask, withTaskName } from './src'
+import {
+  buildConfig,
+  extractTypesDefinitions,
+  run,
+  runTask,
+  withTaskName,
+} from './src'
 
 import type { TaskFunction } from 'gulp'
 import type { Module } from './src'
 
-export const copyFiles = () =>
-  Promise.all([
+export const copyFiles = () => {
+  return Promise.all([
     copyFile(epPackage, path.join(epOutput, 'package.json')),
     copyFile(
       path.resolve(projRoot, 'README.md'),
@@ -29,6 +35,7 @@ export const copyFiles = () =>
       path.resolve(epOutput, 'LICENSE')
     ),
   ])
+}
 
 export const copyTypesDefinitions: TaskFunction = (done) => {
   const src = path.resolve(buildOutput, 'types', 'packages')
@@ -53,9 +60,8 @@ export default series(
   withTaskName('createOutput', () => mkdir(epOutput, { recursive: true })),
 
   parallel(
-    runTask('buildModules'),
+    series(runTask('buildModules'), extractTypesDefinitions),
     runTask('buildFullBundle'),
-    runTask('generateTypesDefinitions'),
     runTask('buildHelper'),
     series(
       withTaskName('buildThemeChalk', () =>

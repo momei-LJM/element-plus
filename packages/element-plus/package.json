@@ -17,10 +17,10 @@
   "license": "MIT",
   "main": "lib/index.js",
   "module": "es/index.mjs",
-  "types": "es/index.d.ts",
+  "types": "es/index.d.mts",
   "exports": {
     ".": {
-      "types": "./es/index.d.ts",
+      "types": "./es/index.d.mts",
       "import": "./es/index.mjs",
       "require": "./lib/index.js"
     },
@@ -28,32 +28,32 @@
       "types": "./global.d.ts"
     },
     "./es": {
-      "types": "./es/index.d.ts",
+      "types": "./es/index.d.mts",
       "import": "./es/index.mjs"
     },
     "./lib": {
-      "types": "./lib/index.d.ts",
+      "types": "./lib/index.d.mts",
       "require": "./lib/index.js"
     },
     "./es/*.mjs": {
-      "types": "./es/*.d.ts",
+      "types": "./es/*.d.mts",
       "import": "./es/*.mjs"
     },
     "./es/*": {
       "types": [
-        "./es/*.d.ts",
-        "./es/*/index.d.ts"
+        "./es/*.d.mts",
+        "./es/*/index.d.mts"
       ],
       "import": "./es/*.mjs"
     },
     "./lib/*.js": {
-      "types": "./lib/*.d.ts",
+      "types": "./lib/*.d.mts",
       "require": "./lib/*.js"
     },
     "./lib/*": {
       "types": [
-        "./lib/*.d.ts",
-        "./lib/*/index.d.ts"
+        "./lib/*.d.mts",
+        "./lib/*/index.d.mts"
       ],
       "require": "./lib/*.js"
     },

@@ -24,7 +24,7 @@
   "style": "index.css",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "gulp --require tsx/dist/loader.cjs"
+    "build": "npx tsx ../../node_modules/gulp/bin/gulp.js"
   },
   "devDependencies": {
     "@element-plus/build": "workspace:*",

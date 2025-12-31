@@ -1,25 +1,25 @@
 import path from 'path'
-import { readFile, writeFile } from 'fs/promises'
-import { glob } from 'tinyglobby'
-import { copy, remove } from 'fs-extra'
 import { buildOutput } from '@element-plus/build-utils'
-import { pathRewriter, run } from '../utils'
+import { copy, ensureDir } from 'fs-extra'
+import { glob } from 'tinyglobby'
+import { buildConfig } from '../build-info'
 
-export const generateTypesDefinitions = async () => {
-  await run(
-    'npx vue-tsc -p tsconfig.web.json --declaration --emitDeclarationOnly --declarationDir dist/types'
-  )
-  const typesDir = path.join(buildOutput, 'types', 'packages')
-  const filePaths = await glob(`**/*.d.ts`, {
-    cwd: typesDir,
+/**
+ * 提取es的所有声明文件
+ * 后续复制到cjs的包中做声明文件
+ */
+export const extractTypesDefinitions = async () => {
+  const targetDir = path.join(buildOutput, 'types', 'packages')
+  await ensureDir(targetDir)
+  const sourceDir = buildConfig.esm.output.path
+  const filePaths = await glob(`**/*.d.mts`, {
+    cwd: sourceDir,
     absolute: true,
   })
-  const rewriteTasks = filePaths.map(async (filePath) => {
-    const content = await readFile(filePath, 'utf8')
-    await writeFile(filePath, pathRewriter('esm')(content), 'utf8')
+  const copyTasks = filePaths.map(async (filePath) => {
+    const relativePath = path.relative(sourceDir, filePath)
+    const targetPath = path.join(targetDir, relativePath)
+    await copy(filePath, targetPath)
   })
-  await Promise.all(rewriteTasks)
-  const sourceDir = path.join(typesDir, 'element-plus')
-  await copy(sourceDir, typesDir)
-  await remove(sourceDir)
+  await Promise.all(copyTasks)
 }

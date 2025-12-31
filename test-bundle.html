@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Element Plus Bundle</title>
+  <link rel="stylesheet" href="./dist/index.css">
+</head>
+
+<body>
+  <div id="app">
+    <h1>Element Plus Bundle Test</h1>
+    <el-button type="primary">Primary Button</el-button>
+    <el-input v-model="input" placeholder="Please input"></el-input>
+    <p>Input value: {{ input }}</p>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="./dist/index.full.js"></script>
+  <script>
+    const { createApp } = Vue
+    const { ElButton, ElInput } = ElementPlus
+
+    createApp({
+      components: {
+        ElButton,
+        ElInput
+      },
+      data() {
+        return {
+          input: ''
+        }
+      }
+    }).use(ElementPlus).mount('#app')
+  </script>
+</body>
+
+</html>

@@ -48,11 +48,14 @@ const alias: AliasOptions = [
     : [
         {
           find: /^element-plus(\/(es|lib))?$/,
-          replacement: path.resolve(projRoot, 'packages/element-plus/index.ts'),
+          replacement: path.resolve(
+            __dirname,
+            '../../../dist/element-plus/es/index.mjs'
+          ),
         },
         {
           find: /^element-plus\/(es|lib)\/(.*)$/,
-          replacement: `${path.resolve(projRoot, 'packages')}/$2`,
+          replacement: `${path.resolve(__dirname, '../../../dist/element-plus')}/$2`,
         },
       ]),
 ]

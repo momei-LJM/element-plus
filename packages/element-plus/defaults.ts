@@ -2,4 +2,5 @@ import { makeInstaller } from './make-installer'
 import Components from './component'
 import Plugins from './plugin'
 
-export default makeInstaller([...Components, ...Plugins])
+const defaults = makeInstaller([...Components, ...Plugins])
+export default defaults

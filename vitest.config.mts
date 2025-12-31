@@ -12,6 +12,8 @@ export default defineConfig({
         vue: Vue(),
         vueJsx: VueJsx(),
       },
+      // 禁用 better-define 插件，避免 magic-string-ast 兼容性问题
+      betterDefine: false,
     }),
   ],
   optimizeDeps: {

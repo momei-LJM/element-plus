@@ -10,7 +10,7 @@ import {
 } from '@element-plus/build-utils'
 import {
   buildConfig,
-  extractTypesDefinitions,
+  // extractTypesDefinitions,
   run,
   runTask,
   withTaskName,
@@ -60,18 +60,18 @@ export default series(
   withTaskName('createOutput', () => mkdir(epOutput, { recursive: true })),
 
   parallel(
-    series(runTask('buildModules'), extractTypesDefinitions),
-    runTask('buildFullBundle'),
-    runTask('buildHelper'),
-    series(
-      withTaskName('buildThemeChalk', () =>
-        run('pnpm run -C packages/theme-chalk build')
-      ),
-      copyFullStyle
-    )
-  ),
+    // series(runTask('buildModules'), extractTypesDefinitions)
+    runTask('buildFullBundle')
+    // runTask('buildHelper'),
+    // series(
+    //   withTaskName('buildThemeChalk', () =>
+    //     run('pnpm run -C packages/theme-chalk build')
+    //   ),
+    //   copyFullStyle
+    // )
+  )
 
-  parallel(copyTypesDefinitions, copyFiles)
+  // parallel(copyTypesDefinitions, copyFiles)
 )
 
 export * from './src'

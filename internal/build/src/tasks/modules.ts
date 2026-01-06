@@ -56,14 +56,16 @@ async function buildModulesComponents() {
         },
         tsconfig,
         dts:
-          module === 'esm'
-            ? {
-                vue: true,
-                compilerOptions: {
-                  // isolatedDeclarations: true,
-                },
-              }
-            : false,
+          // module === 'esm'
+          //   ? {
+          //       vue: true,
+          //       eager: true,
+          //       compilerOptions: {
+          //         // isolatedDeclarations: true,
+          //       },
+          //     }
+          //   : false,
+          false,
       }
       return Promise.all([
         patchPreserveModulesRoot(config.output.path, {

@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import { cwd } from 'process'
 import {
   PKG_BRAND_NAME,
   PKG_CAMELCASE_LOCAL_NAME,
@@ -20,6 +21,8 @@ import { generateExternal, withTaskName } from '../utils'
 
 import type { TaskFunction } from 'gulp'
 import type { InputOptions } from 'rollup'
+
+const tsconfig = path.resolve(cwd(), '../../tsconfig.web.json')
 
 const banner = `/*! ${PKG_BRAND_NAME} v${version} */\n`
 
@@ -167,7 +170,7 @@ async function buildFullLocale(minify: boolean) {
           sourcemap: minify,
           banner,
           dts: false,
-          tsconfig: '../../tsconfig.web.json',
+          tsconfig,
         }),
         build({
           outDir: path.resolve(epOutput, 'dist/locale'),
@@ -183,7 +186,7 @@ async function buildFullLocale(minify: boolean) {
           sourcemap: minify,
           banner,
           dts: false,
-          tsconfig: '../../tsconfig.web.json',
+          tsconfig,
         }),
       ])
     })

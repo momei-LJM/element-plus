@@ -10,7 +10,8 @@
   "scripts": {
     "start": "npx tsx ./node_modules/gulp/bin/gulp.js -f gulpfile.ts",
     "dev": "pnpm run stub",
-    "stub": "unbuild --stub"
+    "stub": "unbuild --stub",
+    "build:dts": "vue-tsc --declaration --emitDeclarationOnly --outDir ../../dist/types --project ../../tsconfig.web.json"
   },
   "peerDependencies": {
     "vue": "^3.2.25"
@@ -38,11 +39,11 @@
   },
   "devDependencies": {
     "@pnpm/types": "^8.4.0",
-    "tsdown": "^0.18.0",
+    "tsdown": "^0.19.0-beta.5",
     "tsx": "^4.19.3",
     "unbuild": "^2.0.0",
     "unplugin-vue": "^7.1.0",
     "vue": "^3.5.26",
-    "vue-tsc": "=3.1.0"
+    "vue-tsc": "3.2.2"
   }
 }

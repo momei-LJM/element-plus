@@ -9,7 +9,7 @@
   },
   "include": [
     "packages/utils/vue3.3.polyfill.ts",
-    "packages",
+    "packages/**/*",
     "typings/env.d.ts"
   ],
   "exclude": [

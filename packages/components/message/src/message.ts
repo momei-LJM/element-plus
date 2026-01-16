@@ -9,8 +9,8 @@ import {
 import type {
   AppContext,
   ExtractPropTypes,
+  ExtractPublicPropTypes,
   VNode,
-  __ExtractPublicPropTypes,
 } from 'vue'
 import type { Mutable } from '@element-plus/utils'
 import type MessageConstructor from './message.vue'
@@ -23,7 +23,21 @@ export const messageTypes = [
   'error',
 ] as const
 
-export type messageType = typeof messageTypes[number]
+export const messagePlacement = [
+  'top',
+  'top-left',
+  'top-right',
+  'bottom',
+  'bottom-left',
+  'bottom-right',
+] as const
+
+export const MESSAGE_DEFAULT_PLACEMENT = 'top'
+
+export type MessageType = (typeof messageTypes)[number]
+export type MessagePlacement = (typeof messagePlacement)[number]
+/** @deprecated please use `MessageType` instead */
+export type messageType = MessageType // will be removed in 3.0.0.
 
 export interface MessageConfigContext {
   max?: number
@@ -32,6 +46,7 @@ export interface MessageConfigContext {
   offset?: number
   showClose?: boolean
   plain?: boolean
+  placement?: string
 }
 
 export const messageDefaults = mutable({
@@ -46,6 +61,7 @@ export const messageDefaults = mutable({
   type: 'info',
   plain: false,
   offset: 16,
+  placement: undefined,
   zIndex: 0,
   grouping: false,
   repeatNum: 1,
@@ -136,6 +152,14 @@ export const messageProps = buildProps({
     default: messageDefaults.offset,
   },
   /**
+   * @description message placement position
+   */
+  placement: {
+    type: String,
+    values: messagePlacement,
+    default: messageDefaults.placement,
+  },
+  /**
    * @description input box size
    */
   zIndex: {
@@ -158,7 +182,7 @@ export const messageProps = buildProps({
   },
 } as const)
 export type MessageProps = ExtractPropTypes<typeof messageProps>
-export type MessagePropsPublic = __ExtractPublicPropTypes<typeof messageProps>
+export type MessagePropsPublic = ExtractPublicPropTypes<typeof messageProps>
 
 export const messageEmits = {
   destroy: () => true,
@@ -195,7 +219,8 @@ export interface MessageHandler {
 
 export type MessageFn = {
   (options?: MessageParams, appContext?: null | AppContext): MessageHandler
-  closeAll(type?: messageType): void
+  closeAll(type?: MessageType): void
+  closeAllByPlacement(position: MessagePlacement): void
 }
 export type MessageTypedFn = (
   options?: MessageParamsWithType,

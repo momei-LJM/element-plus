@@ -4,6 +4,7 @@ import {
   h,
   inject,
   nextTick,
+  onBeforeUnmount,
   onMounted,
   reactive,
   ref,
@@ -11,14 +12,15 @@ import {
 } from 'vue'
 import ElCheckbox from '@element-plus/components/checkbox'
 import { useNamespace } from '@element-plus/hooks'
+import { useLocale } from '@element-plus/hooks/use-locale'
 import FilterPanel from '../filter-panel.vue'
 import useLayoutObserver from '../layout-observer'
 import { TABLE_INJECTION_KEY } from '../tokens'
-import TableLayout from '../table-layout'
 import useEvent from './event-helper'
 import useStyle from './style.helper'
 import useUtils from './utils-helper'
 
+import type TableLayout from '../table-layout'
 import type { ComponentInternalInstance, PropType, Ref } from 'vue'
 import type { DefaultRow, Sort } from '../table/defaults'
 import type { Store } from '../store'
@@ -80,8 +82,9 @@ export default defineComponent({
     const saveIndexSelection = reactive(new Map())
     const theadRef = ref()
 
+    let delayId: ReturnType<typeof setTimeout> | undefined
     const updateFixedColumnStyle = () => {
-      setTimeout(() => {
+      delayId = setTimeout(() => {
         if (saveIndexSelection.size > 0) {
           saveIndexSelection.forEach((column, key) => {
             const el = theadRef.value.querySelector(
@@ -89,7 +92,7 @@ export default defineComponent({
             )
             if (el) {
               const width = el.getBoundingClientRect().width
-              column.width = width
+              column.width = width || column.width
             }
           })
           saveIndexSelection.clear()
@@ -98,6 +101,12 @@ export default defineComponent({
     }
 
     watch(saveIndexSelection, updateFixedColumnStyle)
+    onBeforeUnmount(() => {
+      if (delayId) {
+        clearTimeout(delayId)
+        delayId = undefined
+      }
+    })
 
     onMounted(async () => {
       // Need double await, because updateColumns is executed after nextTick for now
@@ -128,6 +137,8 @@ export default defineComponent({
       props as TableHeaderProps<any>
     )
 
+    const { t } = useLocale()
+
     instance.state = {
       onColumnsChange,
       onScrollableChange,
@@ -136,6 +147,7 @@ export default defineComponent({
 
     return {
       ns,
+      t,
       filterPanels,
       onColumnsChange,
       onScrollableChange,
@@ -162,6 +174,7 @@ export default defineComponent({
   render() {
     const {
       ns,
+      t,
       isGroup,
       columnRows,
       getHeaderCellStyle,
@@ -184,7 +197,7 @@ export default defineComponent({
       'thead',
       {
         ref: 'theadRef',
-        class: { [ns.is('group')]: isGroup },
+        class: ns.is('group', isGroup),
       },
       columnRows.map((subColumns, rowIndex) =>
         h(
@@ -214,6 +227,8 @@ export default defineComponent({
                 colspan: column.colSpan,
                 key: `${column.id}-thead`,
                 rowspan: column.rowSpan,
+                scope: column.colSpan > 1 ? 'colgroup' : 'col',
+                ariaSort: column.sortable ? column.order : undefined,
                 style: getHeaderCellStyle(
                   rowIndex,
                   cellIndex,
@@ -260,11 +275,15 @@ export default defineComponent({
                       : column.label,
                     column.sortable &&
                       h(
-                        'span',
+                        'button',
                         {
+                          type: 'button',
+                          class: 'caret-wrapper',
+                          'aria-label': t('el.table.sortLabel', {
+                            column: column.label || '',
+                          }),
                           onClick: ($event: Event) =>
                             handleSortClick($event, column),
-                          class: 'caret-wrapper',
                         },
                         [
                           h('i', {

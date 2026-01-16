@@ -1,4 +1,4 @@
-import { createVNode, isVNode, render } from 'vue'
+import { Comment, Fragment, createVNode, isVNode, render } from 'vue'
 import { flatMap, get, isNull, merge } from 'lodash-unified'
 import {
   ensureArray,
@@ -19,7 +19,7 @@ import ElTooltip, {
 
 import type { DefaultRow, Table, TreeProps } from './table/defaults'
 import type { TableColumnCtx } from './table-column/defaults'
-import type { CSSProperties, VNode } from 'vue'
+import type { CSSProperties, VNode, VNodeArrayChildren } from 'vue'
 
 export type TableOverflowTooltipOptions = Partial<
   Pick<
@@ -182,13 +182,12 @@ export const getColumnByCell = function <T extends DefaultRow>(
 
 export const getRowIdentity = <T extends DefaultRow>(
   row: T,
-  rowKey: string | ((row: T) => string) | null,
-  isReturnRawValue: boolean = false
+  rowKey: string | ((row: T) => string) | null
 ): string => {
   if (!row) throw new Error('Row is required when get row identity')
   if (isString(rowKey)) {
     if (!rowKey.includes('.')) {
-      return isReturnRawValue ? row[rowKey] : `${row[rowKey]}`
+      return `${row[rowKey]}`
     }
     const key = rowKey.split('.')
     let current: any = row
@@ -197,7 +196,7 @@ export const getRowIdentity = <T extends DefaultRow>(
     }
     //TODO: "current" is now any, we just satisfies typecheck here
     // but this function can actually return a number
-    return isReturnRawValue ? (current as string) : `${current}`
+    return `${current}`
   } else if (isFunction(rowKey)) {
     return rowKey.call(null, row)
   }
@@ -508,8 +507,14 @@ export function createTablePopper<T extends DefaultRow>(
   vm.component!.exposed!.onOpen()
   const scrollContainer = parentNode?.querySelector(`.${ns}-scrollbar__wrap`)
   removePopper = () => {
+    if (vm.component?.exposed?.onClose) {
+      vm.component.exposed.onClose()
+    }
     render(null, container)
-    scrollContainer?.removeEventListener('scroll', removePopper!)
+    const currentRemovePopper = removePopper as RemovePopperFn
+    scrollContainer?.removeEventListener('scroll', currentRemovePopper)
+    currentRemovePopper.trigger = undefined
+    currentRemovePopper.vm = undefined
     removePopper = null
   }
   removePopper.trigger = trigger ?? undefined
@@ -662,12 +667,30 @@ export const getFixedColumnOffset = <T extends DefaultRow>(
   return styles
 }
 
-export const ensurePosition = (
-  style: CSSProperties | undefined,
-  key: keyof CSSProperties
+export const ensurePosition = <T extends CSSProperties>(
+  style: T | undefined,
+  key: keyof T
 ) => {
   if (!style) return
   if (!Number.isNaN(style[key])) {
     style[key] = `${style[key]}px` as any
   }
+}
+
+export function ensureValidVNode(
+  vnodes: VNodeArrayChildren
+): VNodeArrayChildren | null {
+  return vnodes.some((child) => {
+    if (!isVNode(child)) return true
+    if (child.type === Comment) return false
+    if (
+      child.type === Fragment &&
+      !ensureValidVNode(child.children as VNodeArrayChildren)
+    ) {
+      return false
+    }
+    return true
+  })
+    ? vnodes
+    : null
 }

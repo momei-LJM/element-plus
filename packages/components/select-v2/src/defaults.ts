@@ -16,12 +16,12 @@ import { useTooltipContentProps } from '@element-plus/components/tooltip'
 import { ArrowDown, CircleClose } from '@element-plus/icons-vue'
 import { tagProps } from '../../tag'
 import { defaultProps } from './useProps'
-import SelectV2 from './select.vue'
 
+import type SelectV2 from './select.vue'
 import type { Option, OptionType } from './select.types'
 import type { Props } from './useProps'
 import type { EmitFn } from '@element-plus/utils/vue/typescript'
-import type { ExtractPropTypes, __ExtractPublicPropTypes } from 'vue'
+import type { ExtractPropTypes, ExtractPublicPropTypes } from 'vue'
 import type {
   Options,
   Placement,
@@ -84,7 +84,10 @@ export const selectV2Props = buildProps({
   /**
    * @description is disabled
    */
-  disabled: Boolean,
+  disabled: {
+    type: Boolean,
+    default: undefined,
+  },
   /**
    * @description
    */
@@ -93,13 +96,15 @@ export const selectV2Props = buildProps({
     default: undefined,
   },
   /**
-   * @description is filterable
+   * @description whether Select is filterable
    */
   filterable: Boolean,
   /**
-   * @description
+   * @description custom filter method, the first parameter is the current input value. To use this, `filterable` must be true
    */
-  filterMethod: Function,
+  filterMethod: {
+    type: definePropType<(query: string) => void>(Function),
+  },
   /**
    * @description The height of the dropdown panel, 34px for each item
    */
@@ -115,7 +120,7 @@ export const selectV2Props = buildProps({
     default: 34,
   },
   /**
-   * @description
+   * @description native input id
    */
   id: String,
   /**
@@ -130,10 +135,10 @@ export const selectV2Props = buildProps({
    * @description biding value
    */
   modelValue: {
-    // eslint-disable-next-line prettier/prettier
     type: definePropType<
       any[] | string | number | boolean | Record<string, any> | any
     >([Array, String, Number, Boolean, Object]),
+    default: undefined,
   },
   /**
    * @description is multiple
@@ -161,7 +166,9 @@ export const selectV2Props = buildProps({
   /**
    * @description function that gets called when the input value changes. Its parameter is the current input value. To use this, `filterable` must be true
    */
-  remoteMethod: Function,
+  remoteMethod: {
+    type: definePropType<(query: string) => void>(Function),
+  },
   /**
    * @description whether reserve the keyword after select filtered option.
    */
@@ -196,21 +203,29 @@ export const selectV2Props = buildProps({
   /**
    * @description custom class name for Select's dropdown
    */
-  popperClass: {
-    type: String,
-    default: '',
-  },
+  popperClass: useTooltipContentProps.popperClass,
+  /**
+   * @description custom style for Select's dropdown
+   */
+  popperStyle: useTooltipContentProps.popperStyle,
   /**
    * @description [popper.js](https://popper.js.org/docs/v2/) parameters
    */
   popperOptions: {
     type: definePropType<Partial<Options>>(Object),
-    default: () => ({} as Partial<Options>),
+    default: () => ({}) as Partial<Options>,
   },
   /**
    * @description whether search data from server
    */
   remote: Boolean,
+  /**
+   * @description debounce delay during remote search, in milliseconds
+   */
+  debounce: {
+    type: Number,
+    default: 300,
+  },
   /**
    * @description size of component
    */
@@ -247,6 +262,10 @@ export const selectV2Props = buildProps({
     type: Number,
     default: 12,
   },
+  /**
+   * @description in remote search method show suffix icon
+   */
+  remoteShowSuffix: Boolean,
   /**
    * @description Determines whether the arrow is displayed
    */
@@ -339,9 +358,9 @@ export const optionV2Emits = {
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
 export type SelectV2Props = ExtractPropTypes<typeof selectV2Props>
-export type SelectV2PropsPublic = __ExtractPublicPropTypes<typeof selectV2Props>
+export type SelectV2PropsPublic = ExtractPublicPropTypes<typeof selectV2Props>
 export type OptionV2Props = ExtractPropTypes<typeof optionV2Props>
-export type OptionV2PropsPublic = __ExtractPublicPropTypes<typeof optionV2Props>
+export type OptionV2PropsPublic = ExtractPublicPropTypes<typeof optionV2Props>
 export type SelectV2EmitFn = EmitFn<typeof selectV2Emits>
 export type OptionV2EmitFn = EmitFn<typeof optionV2Emits>
 

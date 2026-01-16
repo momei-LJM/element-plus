@@ -2,7 +2,7 @@ import path from 'path'
 import Inspect from 'vite-plugin-inspect'
 import UnoCSS from 'unocss/vite'
 import mkcert from 'vite-plugin-mkcert'
-import glob from 'fast-glob'
+import { glob } from 'tinyglobby'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import Icons from 'unplugin-icons/vite'
@@ -57,7 +57,7 @@ const alias: AliasOptions = [
       ]),
 ]
 
-export const getViteConfig = ({ mode }: { mode: string }): ViteConfig => {
+export const getViteConfig = ({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
     css: {
@@ -69,6 +69,7 @@ export const getViteConfig = ({ mode }: { mode: string }): ViteConfig => {
     },
     server: {
       host: true,
+      port: 2000,
       fs: {
         allow: [projRoot],
       },
@@ -113,5 +114,5 @@ export const getViteConfig = ({ mode }: { mode: string }): ViteConfig => {
     optimizeDeps: {
       include: optimizeDeps,
     },
-  }
+  } as ViteConfig
 }

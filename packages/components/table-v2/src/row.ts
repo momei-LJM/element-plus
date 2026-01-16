@@ -5,7 +5,7 @@ import { columns, expandColumnKey, rowKey } from './common'
 import type {
   CSSProperties,
   ExtractPropTypes,
-  __ExtractPublicPropTypes,
+  ExtractPublicPropTypes,
 } from 'vue'
 import type { FixedDirection, KeyType, RowCommonParams } from './types'
 
@@ -15,10 +15,10 @@ export type RowExpandParams = {
 } & RowCommonParams
 
 export type RowHoverParams = {
-  event: MouseEvent
+  event?: MouseEvent
   hovered: boolean
   rowKey: KeyType
-} & RowCommonParams
+} & Partial<RowCommonParams>
 
 export type RowEventHandlerParams = {
   rowKey: KeyType
@@ -91,6 +91,6 @@ export const tableV2RowProps = buildProps({
 } as const)
 
 export type TableV2RowProps = ExtractPropTypes<typeof tableV2RowProps>
-export type TableV2RowPropsPublic = __ExtractPublicPropTypes<
+export type TableV2RowPropsPublic = ExtractPublicPropTypes<
   typeof tableV2RowProps
 >

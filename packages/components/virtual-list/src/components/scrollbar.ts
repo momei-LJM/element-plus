@@ -78,7 +78,7 @@ const ScrollBar = defineComponent({
       const SCROLLBAR_MAX_SIZE = trackSize.value / 3
       return Math.floor(
         Math.min(
-          Math.max(ratio * trackSize.value, SCROLLBAR_MIN_SIZE),
+          Math.max((ratio * trackSize.value) / 100, SCROLLBAR_MIN_SIZE),
           SCROLLBAR_MAX_SIZE
         )
       )
@@ -258,7 +258,10 @@ const ScrollBar = defineComponent({
             (props.alwaysOn || state.isDragging) && 'always-on',
           ],
           style: trackStyle.value,
-          onMousedown: withModifiers(clickTrackHandler, ['stop', 'prevent']),
+          onMousedown: withModifiers(clickTrackHandler as (e: Event) => void, [
+            'stop',
+            'prevent',
+          ]),
           onTouchstartPrevent: onThumbMouseDown,
         },
         h(

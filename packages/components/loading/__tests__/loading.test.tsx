@@ -1,4 +1,4 @@
-import { nextTick, ref } from 'vue'
+import { createVNode, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import Loading from '../src/service'
@@ -7,6 +7,8 @@ import ElInput from '../../input'
 
 import type { VNode } from 'vue'
 import type { LoadingInstance } from '../src/loading'
+
+const AXIOM = 'Rem is the best girl'
 
 function destroyLoadingInstance(loadingInstance: LoadingInstance) {
   if (!loadingInstance) return
@@ -74,12 +76,12 @@ describe('Loading', () => {
 
   test('body directive', async () => {
     const loading = ref(true)
-    const wrapper = _mount(() => <div v-loading_body={loading.value} />)
+    _mount(() => <div v-loading_body={loading.value} />)
 
     await nextTick()
     const mask = document.querySelector('.el-loading-mask')!
     expect(mask.parentNode === document.body).toBeTruthy()
-    wrapper.vm.loading = false
+    loading.value = false
     document.body.removeChild(mask)
   })
 
@@ -144,6 +146,23 @@ describe('Loading', () => {
   test('create service', async () => {
     loadingInstance = Loading()
     expect(document.querySelector('.el-loading-mask')).toBeTruthy()
+  })
+
+  test('accept VNode as text', async () => {
+    loadingInstance = Loading({
+      text: createVNode('div', { 'data-testid': 'my-loading' }, AXIOM),
+    })
+    const loadingText = document.querySelector('[data-testid="my-loading"]')
+    expect(loadingText).not.toBeNull()
+    expect(loadingText?.textContent).toBe(AXIOM)
+
+    loadingInstance.setText(
+      createVNode('div', { 'data-testid': 'set-text' }, AXIOM)
+    )
+    await nextTick()
+    const setTextLoading = document.querySelector('[data-testid="set-text"]')
+    expect(setTextLoading).not.toBeNull()
+    expect(setTextLoading?.textContent).toBe(AXIOM)
   })
 
   test('close service', async () => {

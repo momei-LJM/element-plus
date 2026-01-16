@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="renderActiveBar"
     ref="barRef"
     :class="[ns.e('active-bar'), ns.is(rootTabs!.props.tabPosition)]"
     :style="barStyle"
@@ -7,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
 import { capitalize, isUndefined, throwError } from '@element-plus/utils'
 import { useNamespace } from '@element-plus/hooks'
@@ -29,6 +30,17 @@ const ns = useNamespace('tabs')
 
 const barRef = ref<HTMLDivElement>()
 const barStyle = ref<CSSProperties>()
+/**
+ * when defaultValue is not set, the bar is always shown.
+ *
+ * when defaultValue is set, the bar will be hidden until style is calculated
+ * to avoid the bar showing in the wrong position on initial render.
+ */
+const renderActiveBar = computed(
+  () =>
+    isUndefined(rootTabs.props.defaultValue) ||
+    Boolean(barStyle.value?.transform)
+)
 
 const getBarStyle = (): CSSProperties => {
   let offset = 0
@@ -71,13 +83,13 @@ const getBarStyle = (): CSSProperties => {
 
 const update = () => (barStyle.value = getBarStyle())
 
-const saveObserver = [] as ReturnType<typeof useResizeObserver>[]
+const tabObservers = [] as ReturnType<typeof useResizeObserver>[]
 const observerTabs = () => {
-  saveObserver.forEach((observer) => observer.stop())
-  saveObserver.length = 0
+  tabObservers.forEach((observer) => observer.stop())
+  tabObservers.length = 0
 
   Object.values(props.tabRefs).forEach((tab) => {
-    saveObserver.push(useResizeObserver(tab, update))
+    tabObservers.push(useResizeObserver(tab, update))
   })
 }
 
@@ -91,12 +103,12 @@ watch(
   },
   { immediate: true }
 )
-const barObserever = useResizeObserver(barRef, () => update())
+const barObserver = useResizeObserver(barRef, () => update())
 
 onBeforeUnmount(() => {
-  saveObserver.forEach((observer) => observer.stop())
-  saveObserver.length = 0
-  barObserever.stop()
+  tabObservers.forEach((observer) => observer.stop())
+  tabObservers.length = 0
+  barObserver.stop()
 })
 
 defineExpose({

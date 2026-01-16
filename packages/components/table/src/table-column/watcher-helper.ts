@@ -1,5 +1,5 @@
 import { getCurrentInstance, watch } from 'vue'
-import { hasOwn } from '@element-plus/utils'
+import { hasOwn, isUndefined } from '@element-plus/utils'
 import { parseMinWidth, parseWidth } from '../util'
 
 import type { ComputedRef } from 'vue'
@@ -60,7 +60,9 @@ function useWatcher<T extends DefaultRow>(
       'filterClassName',
       'showOverflowTooltip',
       'tooltipFormatter',
+      'resizable',
     ]
+    const parentProps = ['showOverflowTooltip']
     const aliases: Record<string, string> = {
       property: 'prop',
       align: 'realAlign',
@@ -74,6 +76,24 @@ function useWatcher<T extends DefaultRow>(
           () => props_[columnKey],
           (newVal) => {
             instance.columnConfig.value[key as never] = newVal
+            if (key === 'filters' || key === 'filterMethod') {
+              instance.columnConfig.value['filterable'] = !!(
+                instance.columnConfig.value['filters'] ||
+                instance.columnConfig.value['filterMethod']
+              )
+            }
+          }
+        )
+      }
+    })
+    parentProps.forEach((key) => {
+      if (hasOwn(owner.value.props, key)) {
+        watch(
+          () => owner.value.props[key],
+          (newVal) => {
+            if (instance.columnConfig.value.type === 'selection') return
+            if (!isUndefined(props_[key])) return
+            instance.columnConfig.value[key] = newVal as never
           }
         )
       }

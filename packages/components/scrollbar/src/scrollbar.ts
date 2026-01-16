@@ -1,14 +1,17 @@
 import { buildProps, definePropType, isNumber } from '@element-plus/utils'
 import { useAriaProps } from '@element-plus/hooks'
 
-import type {
-  ExtractPropTypes,
-  StyleValue,
-  __ExtractPublicPropTypes,
-} from 'vue'
+import type { ExtractPropTypes, ExtractPublicPropTypes, StyleValue } from 'vue'
 import type Scrollbar from './scrollbar.vue'
 
 export const scrollbarProps = buildProps({
+  /**
+   * @description trigger distance(px)
+   */
+  distance: {
+    type: Number,
+    default: 0,
+  },
   /**
    * @description height of scrollbar
    */
@@ -95,9 +98,7 @@ export const scrollbarProps = buildProps({
   ...useAriaProps(['ariaLabel', 'ariaOrientation']),
 } as const)
 export type ScrollbarProps = ExtractPropTypes<typeof scrollbarProps>
-export type ScrollbarPropsPublic = __ExtractPublicPropTypes<
-  typeof scrollbarProps
->
+export type ScrollbarPropsPublic = ExtractPublicPropTypes<typeof scrollbarProps>
 
 export const scrollbarEmits = {
   'end-reached': (direction: ScrollbarDirection) =>

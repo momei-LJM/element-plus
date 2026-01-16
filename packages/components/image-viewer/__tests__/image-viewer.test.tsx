@@ -1,8 +1,12 @@
 import { nextTick } from 'vue'
-import { mount } from '@vue/test-utils'
-import { describe, expect, test } from 'vitest'
+import { VueWrapper, mount } from '@vue/test-utils'
+import { describe, expect, test, vi } from 'vitest'
 import { IMAGE_FAIL, IMAGE_SUCCESS } from '@element-plus/test-utils/mock'
 import ImageViewer from '../src/image-viewer.vue'
+import triggerEvent from '@element-plus/test-utils/trigger-event'
+import { EVENT_CODE } from '@element-plus/constants'
+
+import type { ImageViewerInstance } from '../src/image-viewer'
 
 async function doubleWait() {
   await nextTick()
@@ -39,10 +43,34 @@ describe('<image-viewer />', () => {
     wrapper.unmount()
   })
 
+  test('image preview close-on-press-escape', async () => {
+    const onClose = vi.fn()
+    const wrapper = mount(
+      <ImageViewer
+        urlList={[IMAGE_SUCCESS]}
+        onClose={onClose}
+        closeOnPressEscape={false}
+      />
+    )
+
+    await doubleWait()
+
+    triggerEvent(document.body, 'keydown', EVENT_CODE.esc)
+    await nextTick()
+    expect(document.querySelector('.el-image-viewer__wrapper')).toBeDefined()
+
+    await wrapper.setProps({ closeOnPressEscape: true })
+    triggerEvent(document.body, 'keydown', EVENT_CODE.esc)
+    await nextTick()
+
+    expect(document.querySelector('.el-image-viewer__wrapper')).toBeNull()
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
   test('manually switch image', async () => {
     const wrapper = mount(
       <ImageViewer urlList={[IMAGE_SUCCESS, IMAGE_FAIL]} initialIndex={0} />
-    )
+    ) as unknown as VueWrapper<ImageViewerInstance>
 
     await doubleWait()
     const viewer = wrapper.find('.el-image-viewer__wrapper')
@@ -77,5 +105,25 @@ describe('<image-viewer />', () => {
     const innerText = wrapper.find('.el-image-viewer__progress').text()
     expect(innerText).toBe('1 / 2')
     wrapper.unmount()
+  })
+
+  test('custom ImageViewer load failed slot', async () => {
+    const wrapper = mount(ImageViewer, {
+      props: {
+        urlList: [IMAGE_SUCCESS],
+        initialIndex: 1,
+      },
+      slots: {
+        'viewer-error': () => (
+          <div class="load-failed-slot">load failed slot</div>
+        ),
+      },
+    })
+
+    await doubleWait()
+    const img = wrapper.find('.el-image-viewer__wrapper img')
+    await img.trigger('error')
+    await doubleWait()
+    expect(wrapper.find('.load-failed-slot').exists()).toBe(true)
   })
 })

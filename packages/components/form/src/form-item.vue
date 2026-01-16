@@ -11,7 +11,7 @@
     >
       <component
         :is="labelFor ? 'label' : 'div'"
-        v-if="hasLabel"
+        v-if="!!(label || $slots.label)"
         :id="labelId"
         :for="labelFor"
         :class="ns.e('label')"
@@ -109,9 +109,8 @@ const labelStyle = computed<CSSProperties>(() => {
     return {}
   }
 
-  const labelWidth = addUnit(props.labelWidth || formContext?.labelWidth || '')
-  if (labelWidth) return { width: labelWidth }
-  return {}
+  const labelWidth = addUnit(props.labelWidth ?? formContext?.labelWidth)
+  return { width: labelWidth }
 })
 
 const contentStyle = computed<CSSProperties>(() => {
@@ -121,7 +120,7 @@ const contentStyle = computed<CSSProperties>(() => {
   if (!props.label && !props.labelWidth && isNested) {
     return {}
   }
-  const labelWidth = addUnit(props.labelWidth || formContext?.labelWidth || '')
+  const labelWidth = addUnit(props.labelWidth ?? formContext?.labelWidth)
   if (!props.label && !slots.label) {
     return { marginLeft: labelWidth }
   }
@@ -208,7 +207,7 @@ const normalizedRules = computed(() => {
   if (required !== undefined) {
     const requiredRules = rules
       .map((rule, i) => [rule, i] as const)
-      .filter(([rule]) => Object.keys(rule).includes('required'))
+      .filter(([rule]) => 'required' in rule)
 
     if (requiredRules.length > 0) {
       for (const [rule, i] of requiredRules) {
@@ -270,7 +269,7 @@ const onValidationFailed = (error: FormValidateFailure) => {
 
   setValidationState('error')
   validateMessage.value = errors
-    ? errors?.[0]?.message ?? `${props.prop} is required`
+    ? (errors?.[0]?.message ?? `${props.prop} is required`)
     : ''
 
   formContext?.emit('validate', props.prop!, false, validateMessage.value)
@@ -363,6 +362,10 @@ const removeInputId: FormItemContext['removeInputId'] = (id: string) => {
   inputIds.value = inputIds.value.filter((listId) => listId !== id)
 }
 
+const setInitialValue: FormItemContext['setInitialValue'] = (value: any) => {
+  initialValue = clone(value)
+}
+
 watch(
   () => props.error,
   (val) => {
@@ -394,6 +397,7 @@ const context: FormItemContext = reactive({
   clearValidate,
   validate,
   propString,
+  setInitialValue,
 })
 
 provide(formItemContextKey, context)
@@ -434,5 +438,9 @@ defineExpose({
    * @description Reset current field and remove validation result.
    */
   resetField,
+  /**
+   * @description Set initial value for this field. When `resetField` is called, the field will reset to this value.
+   */
+  setInitialValue,
 })
 </script>

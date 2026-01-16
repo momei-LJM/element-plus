@@ -46,6 +46,7 @@ import type { TourStepProps } from './step'
 
 defineOptions({
   name: 'ElTour',
+  inheritAttrs: false,
 })
 
 const props = defineProps(tourProps)
@@ -129,8 +130,8 @@ provide(tourKey, {
   current,
   total,
   showClose: toRef(props, 'showClose'),
-  closeIcon: toRef(props, 'closeIcon') as any,
-  mergedType: mergedType as any,
+  closeIcon: toRef(props, 'closeIcon'),
+  mergedType,
   ns,
   slots,
   updateModelValue(modelValue) {

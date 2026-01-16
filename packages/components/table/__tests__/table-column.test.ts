@@ -5,7 +5,7 @@ import ElTable from '../src/table.vue'
 import ElTableColumn from '../src/table-column'
 import {
   doubleWait,
-  getMutliRowTestData,
+  getMultiRowTestData,
   getTestData,
   mount,
 } from './table-test-common'
@@ -296,8 +296,8 @@ describe('table column', () => {
 
         // #19581
         it('The index parameters of the selectable function should be the same as the index of the row', async () => {
-          const expectIndexs = []
-          const actualIndexs = []
+          const expectIndexes = []
+          const actualIndexes = []
           const wrapper = mount({
             components: {
               ElTable,
@@ -327,8 +327,8 @@ describe('table column', () => {
                 const expectIndex = this.testData.findIndex(
                   (item) => item.id === row.id
                 )
-                expectIndexs.push(expectIndex)
-                actualIndexs.push(index)
+                expectIndexes.push(expectIndex)
+                actualIndexes.push(index)
                 return true
               },
             },
@@ -340,7 +340,7 @@ describe('table column', () => {
           })
           await doubleWait()
 
-          expect(expectIndexs).toEqual(actualIndexs)
+          expect(expectIndexes).toEqual(actualIndexes)
           expect(wrapper.vm.selected.length).toBe(wrapper.vm.testData.length)
         })
 
@@ -479,7 +479,7 @@ describe('table column', () => {
                     return data
                   }
                   case 2: {
-                    return getMutliRowTestData()
+                    return getMultiRowTestData()
                   }
                 }
                 return []
@@ -540,6 +540,19 @@ describe('table column', () => {
           await doubleWait()
           expect(wrapper.findAll('.el-checkbox.is-checked')).toHaveLength(0)
 
+          wrapper.unmount()
+        })
+
+        it('a11y', async () => {
+          const wrapper = createTable('selection')
+          await doubleWait()
+          const checkboxs = wrapper.findAll('.el-checkbox')
+          expect(checkboxs[0].attributes('aria-label')).toBe('Select all rows')
+          expect(checkboxs[0].attributes('for')).toBeDefined()
+          expect(checkboxs[0].attributes('for')).toBe(
+            checkboxs[0].find('input').attributes('id')
+          )
+          expect(checkboxs[1].attributes('aria-label')).toBe('Select this row')
           wrapper.unmount()
         })
       })
@@ -603,6 +616,27 @@ describe('table column', () => {
           await doubleWait()
           expect(wrapper.findAll('td.el-table__expand-column').length).toEqual(
             5
+          )
+          wrapper.unmount()
+        })
+
+        it('a11y', async () => {
+          const wrapper = createInstance()
+          await doubleWait()
+          const buttons = wrapper.findAll(
+            'td.el-table__expand-column .el-table__expand-icon'
+          )
+          expect(buttons[0].attributes('aria-label')).toBe('Expand this row')
+          expect(buttons[0].attributes('aria-expanded')).toBe('false')
+
+          await buttons[0].trigger('click')
+          await doubleWait()
+          expect(wrapper.vm.expandCount).toEqual(1)
+          expect(buttons[0].attributes('aria-label')).toBe('Collapse this row')
+          expect(buttons[0].attributes('aria-expanded')).toBe('true')
+          expect(wrapper.findAll('.el-table__expanded-cell').length).toEqual(1)
+          expect(wrapper.find('.el-table__expanded-cell').text()).toContain(
+            'Toy Story'
           )
           wrapper.unmount()
         })
@@ -1299,7 +1333,7 @@ describe('table column', () => {
     })
   })
 
-  describe('dynamic column attribtes', () => {
+  describe('dynamic column attributes', () => {
     it('label', async () => {
       const wrapper = mount({
         components: {

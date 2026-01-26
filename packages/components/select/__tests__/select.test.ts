@@ -67,10 +67,8 @@ const _mount = (template: string, data: any = () => ({}), otherObj?) =>
 
 function getOptions(): HTMLElement[] {
   return Array.from(
-    document.querySelectorAll<HTMLElement>(
-      'body > div:last-child .el-select-dropdown__item'
-    )
-  )
+    document.querySelectorAll<HTMLElement>('.el-select-dropdown__item')
+  ).filter((el) => el !== null && el !== undefined)
 }
 
 const getSelectVm = (configs: SelectProps = {}, options?) => {

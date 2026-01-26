@@ -116,6 +116,10 @@ export const useSelect = (props, states: States, ctx) => {
 
   const selectDisabled = computed(() => props.disabled || form?.disabled)
 
+  const shouldPreserveSearchValue = computed(
+    () => !props.multiple && props.filterable && props.preserveSearchInSingle
+  )
+
   const showClose = computed(() => {
     const hasValue = props.multiple
       ? Array.isArray(props.modelValue) && props.modelValue.length > 0
@@ -327,12 +331,17 @@ export const useSelect = (props, states: States, ctx) => {
 
         if (props.filterable) {
           states.filteredOptionsCount = states.optionsCount
-          states.query = props.remote ? '' : states.selectedLabel
+
+          if (!shouldPreserveSearchValue.value) {
+            states.query = props.remote ? '' : states.selectedLabel
+          }
           iOSInput.value?.focus?.()
           if (props.multiple) {
             input.value?.focus()
           } else {
-            if (states.selectedLabel) {
+            if (shouldPreserveSearchValue.value) {
+              states.selectedLabel = states.query
+            } else if (states.selectedLabel) {
               states.currentPlaceholder = `${states.selectedLabel}`
               states.selectedLabel = ''
             }
@@ -439,8 +448,13 @@ export const useSelect = (props, states: States, ctx) => {
   }
 
   const handleQueryChange = async (val) => {
-    if (states.previousQuery === val || states.isOnComposition) return
     if (
+      !shouldPreserveSearchValue.value &&
+      (states.previousQuery === val || states.isOnComposition)
+    )
+      return
+    if (
+      !shouldPreserveSearchValue.value &&
       states.previousQuery === null &&
       (isFunction(props.filterMethod) || isFunction(props.remoteMethod))
     ) {

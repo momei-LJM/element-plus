@@ -447,6 +447,13 @@ export default defineComponent({
       default: true,
     },
     /**
+     * @description when single select mode, whether to preserve search text after selecting an option for continuous editing
+     */
+    preserveSearchInSingle: {
+      type: Boolean,
+      default: false,
+    },
+    /**
      * @description unique identity key name for value, required when value is an object
      */
     valueKey: {
